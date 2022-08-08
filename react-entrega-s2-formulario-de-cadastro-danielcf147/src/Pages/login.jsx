@@ -3,10 +3,11 @@ import Form2 from "../Form/login";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { Link } from "react-router-dom";
 import { useEffect, useState } from "react";
-
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 import api from "../services/api";
 import { schemaLogin } from "../Validators/loginUser";
-import { useNavigate } from "react-router-dom";
+
 const Login = () => {
   const {
     register,
@@ -15,18 +16,47 @@ const Login = () => {
   } = useForm({
     resolver: yupResolver(schemaLogin),
   });
-  // useEffect(() => {
-  //   api.post("/users",{}).then((res) => console.log(res));
-  // }, []);
 
-  function registerUser(data) {
-    api.post("/sessions", data).then((res) => {
-      localStorage.setItem("@TOKEN", res.data.token);
-      localStorage.setItem("@USERID", res.data.user.id);
-      window.location.reload(false);
-      console.log(res);
+  const working = () => {
+    toast.success("Sucesso!", {
+      position: "top-right",
+      autoClose: 1500,
+      hideProgressBar: false,
+      closeOnClick: true,
+      pauseOnHover: true,
+      draggable: true,
+      progress: undefined,
     });
-    console.log(data);
+  };
+  const notWorking = () => {
+    toast.error("Login invalido!", {
+      position: "top-right",
+      autoClose: 1500,
+      hideProgressBar: false,
+      closeOnClick: true,
+      pauseOnHover: true,
+      draggable: true,
+      progress: undefined,
+    });
+  };
+
+  function timeout() {
+    window.location.reload(false);
+  }
+  function registerUser(data) {
+    api
+      .post("/sessions", data)
+      .then((res) => {
+        localStorage.setItem("@TOKEN", res.data.token);
+        localStorage.setItem("@USERID", res.data.user.id);
+        working();
+        setTimeout(timeout, 2000);
+
+        console.log(res);
+      })
+      .catch((res) => {
+        notWorking();
+      });
   }
 
   return (
@@ -66,6 +96,18 @@ const Login = () => {
             <p>Cadastre-se</p>
           </div>
         </Link>
+        <ToastContainer
+          position="top-right"
+          autoClose={5000}
+          hideProgressBar={false}
+          newestOnTop={false}
+          closeOnClick
+          rtl={false}
+          pauseOnFocusLoss
+          draggable
+          pauseOnHover
+        />
+        <ToastContainer />
       </div>
     </div>
   );

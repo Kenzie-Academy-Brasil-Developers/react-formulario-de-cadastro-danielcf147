@@ -4,6 +4,8 @@ import { yupResolver } from "@hookform/resolvers/yup";
 import { useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { schema } from "../Validators/registerUser";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 import api from "../services/api";
 
 const Register = () => {
@@ -14,18 +16,54 @@ const Register = () => {
   } = useForm({
     resolver: yupResolver(schema),
   });
-  // useEffect(() => {
-  //   api.post("/users",{}).then((res) => console.log(res));
-  // }, []);
+  const working = () => {
+    toast.success("Usuario criado com sucesso!", {
+      position: "top-right",
+      autoClose: 3000,
+      hideProgressBar: false,
+      closeOnClick: true,
+      pauseOnHover: true,
+      draggable: true,
+      progress: undefined,
+    });
+  };
+  const notWorking = () => {
+    toast.error("Email ja existe!", {
+      position: "top-right",
+      autoClose: 3000,
+      hideProgressBar: false,
+      closeOnClick: true,
+      pauseOnHover: true,
+      draggable: true,
+      progress: undefined,
+    });
+  };
+
   const navigate = useNavigate();
+  function navigating() {
+    navigate("/login", { replace: true });
+  }
   function registerUser(data) {
-    api.post("/users", data).then(navigate("/login", { replace: true }));
+    api
+      .post("/users", data)
+      .then((res) => {
+        working();
+        setTimeout(navigating, 3000);
+      })
+      .catch((res) => {
+        notWorking();
+      });
   }
   return (
     <div className="container-main">
       <div className="header-register">
         <img className="header-img" src="./icons/logo.png" alt="" />
-        <button className="back-btn">Voltar</button>
+        <button
+          className="back-btn"
+          onClick={() => navigate("/login", { replace: true })}
+        >
+          Voltar
+        </button>
       </div>
       <div className="form-container">
         <Form onSubmit={handleSubmit(registerUser)}>
@@ -104,6 +142,17 @@ const Register = () => {
 
           <button type="submit">Cadastrar</button>
         </Form>
+        <ToastContainer
+          position="top-right"
+          autoClose={5000}
+          hideProgressBar={false}
+          newestOnTop={false}
+          closeOnClick
+          rtl={false}
+          pauseOnFocusLoss
+          draggable
+          pauseOnHover
+        />
       </div>
     </div>
   );
