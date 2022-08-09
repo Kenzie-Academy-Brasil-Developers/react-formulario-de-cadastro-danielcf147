@@ -5,7 +5,6 @@ import Dashboard from "../Pages/dashboard";
 
 const RoutesMain = () => {
   const token = localStorage.getItem("@TOKEN");
-  console.log(token);
   return (
     <>
       {token === null ? (

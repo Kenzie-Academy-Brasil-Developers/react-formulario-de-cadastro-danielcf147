@@ -2,7 +2,6 @@ import { useForm } from "react-hook-form";
 import Form from "../Form/register";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { useNavigate } from "react-router-dom";
-import { useEffect, useState } from "react";
 import { schema } from "../Validators/registerUser";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";

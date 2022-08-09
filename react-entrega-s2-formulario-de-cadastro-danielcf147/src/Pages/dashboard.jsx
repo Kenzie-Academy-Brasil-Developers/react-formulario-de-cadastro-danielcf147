@@ -1,11 +1,9 @@
 import { useEffect, useState } from "react";
-import { set } from "react-hook-form";
+
 import api from "../services/api";
 const Dashboard = () => {
   const token = localStorage.getItem("@USERID");
-  console.log(token);
   const [user, setUser] = useState(null);
-  let names = "";
 
   useEffect(() => {
     api
@@ -19,7 +17,6 @@ const Dashboard = () => {
     localStorage.removeItem("@USERID");
     window.location.reload(false);
   }
-  console.log(names);
   return (
     <>
       {user ? (
