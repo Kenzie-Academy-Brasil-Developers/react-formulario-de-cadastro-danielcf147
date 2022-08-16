@@ -3,11 +3,13 @@ import Form from "../Form/register";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { useNavigate } from "react-router-dom";
 import { schema } from "../Validators/registerUser";
-import { ToastContainer, toast } from "react-toastify";
+import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import api from "../services/api";
 
+import { useContext } from "react";
+import { UserContext } from "../Providers/userContext";
 const Register = () => {
+  const { registerUser } = useContext(UserContext);
   const {
     register,
     handleSubmit,
@@ -15,44 +17,7 @@ const Register = () => {
   } = useForm({
     resolver: yupResolver(schema),
   });
-  const working = () => {
-    toast.success("Usuario criado com sucesso!", {
-      position: "top-right",
-      autoClose: 3000,
-      hideProgressBar: false,
-      closeOnClick: true,
-      pauseOnHover: true,
-      draggable: true,
-      progress: undefined,
-    });
-  };
-  const notWorking = () => {
-    toast.error("Email ja existe!", {
-      position: "top-right",
-      autoClose: 3000,
-      hideProgressBar: false,
-      closeOnClick: true,
-      pauseOnHover: true,
-      draggable: true,
-      progress: undefined,
-    });
-  };
-
   const navigate = useNavigate();
-  function navigating() {
-    navigate("/login", { replace: true });
-  }
-  function registerUser(data) {
-    api
-      .post("/users", data)
-      .then((res) => {
-        working();
-        setTimeout(navigating, 3000);
-      })
-      .catch((res) => {
-        notWorking();
-      });
-  }
   return (
     <div className="container-main">
       <div className="header-register">
