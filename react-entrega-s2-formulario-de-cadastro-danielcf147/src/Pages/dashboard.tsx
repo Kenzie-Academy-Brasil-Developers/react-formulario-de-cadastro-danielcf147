@@ -1,34 +1,40 @@
 import { useContext, useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
-import Modal from "react-modal";
+import Modal, { Styles } from "react-modal";
 import Form3 from "../Form/postDashboard";
 import { yupResolver } from "@hookform/resolvers/yup";
 import api from "../services/api";
 import { schemaTechnology } from "../Validators/technology";
-import { UserContext } from "../Providers/userContext";
+import { IdataPostTechnology, UserContext } from "../Providers/userContext";
 import Technology from "../Components/tecnology";
+
+interface IresUser {
+  name: string | null;
+  course_module: string | null;
+}
+
 const Dashboard = () => {
   const token = localStorage.getItem("@USERID");
   const { postTechnology, userTechs } = useContext(UserContext);
-  const [user, setUser] = useState(null);
+  const [user, setUser] = useState<IresUser>();
   const {
     register,
     handleSubmit,
     formState: { errors },
-  } = useForm({
+  } = useForm<IdataPostTechnology>({
     resolver: yupResolver(schemaTechnology),
   });
   useEffect(() => {
     api
-      .get(`/users/${token}`)
-      .then((res) => setUser(res))
+      .get<IresUser>(`/users/${token}`)
+      .then((res) => setUser(res.data))
       .catch((res) => console.log(res));
   }, []);
 
   function logout() {
     localStorage.removeItem("@TOKEN");
     localStorage.removeItem("@USERID");
-    window.location.reload(false);
+    window.location.reload();
   }
 
   const [modalIsOpen, setIsOpen] = useState(false);
@@ -40,7 +46,8 @@ const Dashboard = () => {
   function closeModal() {
     setIsOpen(false);
   }
-  const customStyles = {
+
+  const customStyles: Styles = {
     overlay: {
       position: "fixed",
       top: 0,
@@ -77,8 +84,8 @@ const Dashboard = () => {
           </div>
           <div className="div-line"></div>
           <div className="user-info">
-            <p className="text1">{`Ola, ${user.data.name}`}</p>
-            <p className="text2">{user.data.course_module}</p>
+            <p className="text1">{`Ola, ${user.name}`}</p>
+            <p className="text2">{user.course_module}</p>
           </div>
           <div className="div-line"></div>
           <div className="user-content">
@@ -87,7 +94,11 @@ const Dashboard = () => {
               <button className="user-content-btn" onClick={openModal}>
                 +
               </button>
-              <Modal isOpen={modalIsOpen} style={customStyles}>
+              <Modal
+                isOpen={modalIsOpen}
+                style={customStyles}
+                ariaHideApp={false}
+              >
                 <div className="header-modal">
                   <p>Cadastrar Tecnologia</p>
                   <button onClick={closeModal} className="close-btn">
@@ -98,13 +109,13 @@ const Dashboard = () => {
                   <label htmlFor="title">Nome</label>
                   <input
                     type="text"
-                    id="email"
+                    id="title"
                     placeholder="Digite a tecnologia"
                     {...register("title")}
                   />
-                  <span>{errors.name?.message}</span>
+                  <span>{errors.title?.message}</span>
                   <label htmlFor="status">Selecione um modulo</label>
-                  <select name="" id="status" {...register("status")}>
+                  <select id="status" {...register("status")}>
                     <option value={"Iniciante"}>Iniciante</option>
                     <option value={"Intermediario"}>Intermediario</option>
                     <option value={"Avançado"}>Avançado</option>
@@ -115,9 +126,9 @@ const Dashboard = () => {
               </Modal>
             </div>
             <div className="user-content-body">
-              {userTechs.map((item) => (
-                <Technology item={item} key={item.id} />
-              ))}
+              {userTechs.map((item) => {
+                return <Technology item={item} key={item.id} />;
+              })}
             </div>
           </div>
         </div>

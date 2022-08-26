@@ -7,14 +7,14 @@ import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
 import { useContext } from "react";
-import { UserContext } from "../Providers/userContext";
+import { IdataRegister, UserContext } from "../Providers/userContext";
 const Register = () => {
   const { registerUser } = useContext(UserContext);
   const {
     register,
     handleSubmit,
     formState: { errors },
-  } = useForm({
+  } = useForm<IdataRegister>({
     resolver: yupResolver(schema),
   });
   const navigate = useNavigate();
@@ -85,7 +85,7 @@ const Register = () => {
           <span>{errors.contact?.message}</span>
 
           <label htmlFor="course_module">Selecione um modulo</label>
-          <select name="" id="course_module" {...register("course_module")}>
+          <select id="course_module" {...register("course_module")}>
             <option value={"Primeiro Módulo (Frontend basico)"}>
               Primeiro modulo
             </option>

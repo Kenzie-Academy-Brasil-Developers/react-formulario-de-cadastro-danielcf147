@@ -7,7 +7,7 @@ import "react-toastify/dist/ReactToastify.css";
 
 import { schemaLogin } from "../Validators/loginUser";
 import { useContext } from "react";
-import { UserContext } from "../Providers/userContext";
+import { IdataLogin, UserContext } from "../Providers/userContext";
 
 const Login = () => {
   const { loginUser } = useContext(UserContext);
@@ -15,7 +15,7 @@ const Login = () => {
     register,
     handleSubmit,
     formState: { errors },
-  } = useForm({
+  } = useForm<IdataLogin>({
     resolver: yupResolver(schemaLogin),
   });
 

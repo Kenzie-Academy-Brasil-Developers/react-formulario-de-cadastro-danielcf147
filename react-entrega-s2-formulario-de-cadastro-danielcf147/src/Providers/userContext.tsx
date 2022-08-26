@@ -1,15 +1,51 @@
-import { createContext, useState } from "react";
+import { createContext, useState, ReactNode } from "react";
 import api from "../services/api";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { useEffect } from "react";
+import { login } from "../services/loginUser";
+import { technology } from "../services/postTechnology";
+import { techs } from "../services/profile";
+import { SubmitHandler } from "react-hook-form";
 
-export const UserContext = createContext({});
+export interface IdataLogin {
+  email: string;
+  password: string;
+}
+export interface IdataRegister {
+  name: string;
+  email: string;
+  password: string;
+  confirmationPassword: string;
+  bio: string;
+  contact: string;
+  course_module: string;
+}
+export interface IdataPostTechnology {
+  title: string;
+  status: string;
+}
+interface IdataTechs {
+  title: string;
+  status: string;
+  id: string;
+}
+interface IuserListProps {
+  children: ReactNode;
+}
+interface IuserContext {
+  loginUser: (data: IdataLogin) => void;
+  registerUser: (data: IdataRegister) => void;
+  postTechnology: (data: IdataPostTechnology) => void;
+  userTechs: IdataTechs[];
+}
 
-export const Provider = ({ children }) => {
+export const UserContext = createContext<IuserContext>({} as IuserContext);
+
+export const Provider = ({ children }: IuserListProps) => {
   const userIdValue = localStorage.getItem("@USERID");
   const [userId, setUserId] = useState(userIdValue);
-  const [userTechs, setUserTechs] = useState([]);
+  const [userTechs, setUserTechs] = useState<IdataTechs[]>([]);
   const workingLogin = () => {
     toast.success("Sucesso!", {
       position: "top-right",
@@ -34,22 +70,22 @@ export const Provider = ({ children }) => {
   };
 
   function timeout() {
-    window.location.reload(false);
+    window.location.reload();
   }
-  function loginUser(data) {
-    api
-      .post("/sessions", data)
+  const loginUser: SubmitHandler<IdataLogin> = (data) => {
+    login(data)
       .then((res) => {
-        localStorage.setItem("@TOKEN", res.data.token);
-        localStorage.setItem("@USERID", res.data.user.id);
-        setUserId(res.data.user.id);
+        localStorage.setItem("@TOKEN", res.token);
+        localStorage.setItem("@USERID", res.user.id);
+        api.defaults.headers.common["Authorization"] = `Bearer ${res.token}`;
+        setUserId(res.user.id);
         workingLogin();
         setTimeout(timeout, 2000);
       })
       .catch((res) => {
         notWorkingLogin();
       });
-  }
+  };
   const workingRegister = () => {
     toast.success("Usuario criado com sucesso!", {
       position: "top-right",
@@ -76,7 +112,7 @@ export const Provider = ({ children }) => {
   function redirect() {
     window.location.href = "../Pages/login";
   }
-  function registerUser(data) {
+  const registerUser: SubmitHandler<IdataRegister> = (data) => {
     api
       .post("/users", data)
       .then((res) => {
@@ -86,14 +122,15 @@ export const Provider = ({ children }) => {
       .catch((res) => {
         notWorkingRegister();
       });
-  }
+  };
 
-  function postTechnology(data) {
-    api.post("/users/techs", data).then((res) => setUserId(res.data.id));
-  }
+  const postTechnology: SubmitHandler<IdataPostTechnology> = (data) => {
+    technology(data).then((res) => setUserId(res.id));
+  };
   useEffect(() => {
     if (userId !== null) {
-      api.get(`/profile`).then((res) => setUserTechs(res.data.techs));
+      techs().then((res) => setUserTechs(res.techs));
+      // api.get(`/profile`).then((res) => setUserTechs(res.data.techs));
     }
   }, [userId]);
   return (
